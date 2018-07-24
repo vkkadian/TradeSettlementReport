@@ -1,5 +1,5 @@
 package com.jpm.trade.application;
 
 public interface TradeReportApplication {
-    void generateReport();
+    void generateReport() throws TradeReportApplicationException;
 }

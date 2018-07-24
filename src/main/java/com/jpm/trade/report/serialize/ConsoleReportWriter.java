@@ -11,11 +11,7 @@ public class ConsoleReportWriter implements ReportWriter {
     }
 
     @Override
-    public void write(String reportLine) throws ReportWriterException {
-        try {
-            System.out.println(reportLine);
-        } catch (Throwable t) {
-            throw new ReportWriterException(t.getMessage(), t.getCause());
-        }
+    public void write(String reportLine) {
+        System.out.println(reportLine);
     }
 }

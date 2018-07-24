@@ -13,7 +13,7 @@ import static java.util.stream.Collectors.toMap;
 
 public class TradeSettlementReportProcessor implements TradeReportProcessor {
     @Override
-    public Map<TradeCall, Map<String, Double>> process(List<TradeOrder> tradeOrders) throws TradeReportProcessorException {
+    public Map<TradeCall, Map<String, Double>> process(List<TradeOrder> tradeOrders) {
         Map<TradeCall, Map<String, Double>> reportMap = new HashMap<>();
         Stream<TradeOrder> tradeOrderEligibleToSettleStream = tradeOrders.stream().filter(TradeSettlementReportFilter.getInstance()::filter);
         List<TradeOrder> tradeOrderBuyList = tradeOrderEligibleToSettleStream.filter(tradeOrder -> tradeOrder.getCall().equals(TradeCall.B)).collect(Collectors.toList());

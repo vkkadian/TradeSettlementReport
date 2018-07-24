@@ -14,7 +14,7 @@ public final class TradeSettlementReportFormatter {
         return INSTANCE;
     }
 
-    public static String formatAmount(double amount) {
+    public final String formatAmount(double amount) {
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(TradeSettlementReportApplicationContext.getInstance().getLocale());
         return currencyFormatter.format(amount);
     }

@@ -2,7 +2,6 @@ package com.jpm.trade.application;
 
 import com.jpm.trade.data.TradeOrderManager;
 import com.jpm.trade.model.TradeCall;
-import com.jpm.trade.report.TradeReportApplicationException;
 import com.jpm.trade.report.process.TradeReportProcessor;
 import com.jpm.trade.report.produce.TradeReportProducer;
 
@@ -23,12 +22,12 @@ public class TradeSettlementReportApplication implements TradeReportApplication 
         this.tradeReportProducer = tradeReportProducer;
     }
 
-    public void generateReport() {
+    public void generateReport() throws TradeReportApplicationException {
         try {
             Map<TradeCall, Map<String, Double>> tradeReportMap = tradeReportProcessor.process(TradeOrderManager.getInstance().getTradeOrders());
             tradeReportProducer.produce(tradeReportMap);
-        } catch (Throwable t) {
-            throw new TradeReportApplicationException(t.getMessage(), t.getCause());
+        } catch (Exception e) {
+            throw new TradeReportApplicationException(e.getMessage(), e.getCause());
         }
     }
 }

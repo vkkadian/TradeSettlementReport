@@ -5,5 +5,5 @@ import com.jpm.trade.model.TradeCall;
 import java.util.Map;
 
 public interface TradeReportProducer {
-    void produce(Map<TradeCall, Map<String, Double>> tradeReportMap) throws TradeReportProducerException;
+    void produce(Map<TradeCall, Map<String, Double>> tradeReportMap);
 }

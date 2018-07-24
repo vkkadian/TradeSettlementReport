@@ -1,6 +1,5 @@
 package com.jpm.trade.application.context;
 
-import com.jpm.trade.report.TradeReportApplicationContextException;
 import com.jpm.trade.report.serialize.ConsoleReportWriter;
 import com.jpm.trade.report.serialize.ReportWriter;
 
@@ -32,15 +31,15 @@ public final class TradeSettlementReportApplicationContext implements TradeRepor
         return enUSLocale;
     }
 
-    public List<Currency> getSunThuWeekDayCurrencyList() {
+    List<Currency> getSunThuWeekDayCurrencyList() {
         return Collections.unmodifiableList(sunThuWeekDayCurrencyList);
     }
 
-    public List<DayOfWeek> getMonFriNonWorkingDaysList() {
+    List<DayOfWeek> getMonFriNonWorkingDaysList() {
         return Collections.unmodifiableList(monFriNonWorkingDaysList);
     }
 
-    public List<DayOfWeek> getSunThuNonWorkingDaysList() {
+    List<DayOfWeek> getSunThuNonWorkingDaysList() {
         return Collections.unmodifiableList(sunThuNonWorkingDaysList);
     }
 
@@ -49,30 +48,26 @@ public final class TradeSettlementReportApplicationContext implements TradeRepor
     }
 
     @Override
-    public void initialize() throws TradeReportApplicationContextException {
-        try {
-            //report writers
-            reportWriterlist.add(ConsoleReportWriter.getInstance());
-            // currencies with sun-thu week days
-            sunThuWeekDayCurrencyList.add(Currency.getInstance("AED"));
-            sunThuWeekDayCurrencyList.add(Currency.getInstance("SAR"));
+    public void initialize() {
+        //report writers
+        reportWriterlist.add(ConsoleReportWriter.getInstance());
+        // currencies with sun-thu week days
+        sunThuWeekDayCurrencyList.add(Currency.getInstance("AED"));
+        sunThuWeekDayCurrencyList.add(Currency.getInstance("SAR"));
 
-            //currency week day map
-            monFriNonWorkingDaysList.add(DayOfWeek.SATURDAY);
-            monFriNonWorkingDaysList.add(DayOfWeek.SUNDAY);
+        //currency week day map
+        monFriNonWorkingDaysList.add(DayOfWeek.SATURDAY);
+        monFriNonWorkingDaysList.add(DayOfWeek.SUNDAY);
 
-            sunThuNonWorkingDaysList.add(DayOfWeek.FRIDAY);
-            sunThuNonWorkingDaysList.add(DayOfWeek.SATURDAY);
+        sunThuNonWorkingDaysList.add(DayOfWeek.FRIDAY);
+        sunThuNonWorkingDaysList.add(DayOfWeek.SATURDAY);
 
-            for (Currency currency : Currency.getAvailableCurrencies()) {
-                if (sunThuWeekDayCurrencyList.contains(currency)) {
-                    currencyWeekDayMap.put(currency, sunThuNonWorkingDaysList);
-                } else {
-                    currencyWeekDayMap.put(currency, monFriNonWorkingDaysList);
-                }
+        for (Currency currency : Currency.getAvailableCurrencies()) {
+            if (sunThuWeekDayCurrencyList.contains(currency)) {
+                currencyWeekDayMap.put(currency, sunThuNonWorkingDaysList);
+            } else {
+                currencyWeekDayMap.put(currency, monFriNonWorkingDaysList);
             }
-        } catch (Throwable t) {
-            throw new TradeReportApplicationContextException(t.getMessage(), t.getCause());
         }
     }
 }

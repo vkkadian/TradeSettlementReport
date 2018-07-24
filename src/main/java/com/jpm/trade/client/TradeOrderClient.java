@@ -1,5 +1,5 @@
 package com.jpm.trade.client;
 
 public interface TradeOrderClient {
-    boolean start();
+    boolean start() throws TradeOrderClientException;
 }

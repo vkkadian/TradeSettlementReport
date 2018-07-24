@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface TradeReportProcessor {
-    Map<TradeCall, Map<String, Double>> process(List<TradeOrder> tradeOrderList) throws TradeReportProcessorException;
+    Map<TradeCall, Map<String, Double>> process(List<TradeOrder> tradeOrderList);
 }

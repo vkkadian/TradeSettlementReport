@@ -32,24 +32,20 @@ public class TradeSettlementReportProducer implements TradeReportProducer {
     }
 
     @Override
-    public void produce(Map<TradeCall, Map<String, Double>> tradeReportMap) throws TradeReportProducerException {
-        try {
-            if (tradeReportMap == null || tradeReportMap.size() == 0) {
-                sendToReportWriters("No trades to settle");
-                return;
-            }
-            sendToReportWriters(REPORT_HEADER_LINE);
-            sendToReportWriters(REPORT_HEADER);
-            sendToReportWriters(REPORT_HEADER_LINE);
-            for (Map.Entry<TradeCall, Map<String, Double>> entry : tradeReportMap.entrySet()) {
-                double totalAmount = entry.getValue().values().stream().mapToDouble(value -> value).sum();
-                sendToReportWriters(REPORT_SECTION_LINE);
-                sendToReportWriters(reportSectionMap.get(entry.getKey()) + TradeSettlementReportFormatter.formatAmount(totalAmount));
-                sendToReportWriters(REPORT_SECTION_LINE);
-                produceReport(entry.getValue(), entry.getKey());
-            }
-        } catch (Throwable t) {
-            new TradeReportProducerException(t.getMessage(), t.getCause());
+    public void produce(Map<TradeCall, Map<String, Double>> tradeReportMap) {
+        if (tradeReportMap == null || tradeReportMap.size() == 0) {
+            sendToReportWriters("No trades to settle");
+            return;
+        }
+        sendToReportWriters(REPORT_HEADER_LINE);
+        sendToReportWriters(REPORT_HEADER);
+        sendToReportWriters(REPORT_HEADER_LINE);
+        for (Map.Entry<TradeCall, Map<String, Double>> entry : tradeReportMap.entrySet()) {
+            double totalAmount = entry.getValue().values().stream().mapToDouble(value -> value).sum();
+            sendToReportWriters(REPORT_SECTION_LINE);
+            sendToReportWriters(reportSectionMap.get(entry.getKey()) + TradeSettlementReportFormatter.getInstance().formatAmount(totalAmount));
+            sendToReportWriters(REPORT_SECTION_LINE);
+            produceReport(entry.getValue(), entry.getKey());
         }
     }
 
@@ -61,7 +57,7 @@ public class TradeSettlementReportProducer implements TradeReportProducer {
             @Override
             public void accept(Map.Entry<String, Double> entry) {
                 int rank = amount == entry.getValue() ? i : i++;
-                String reportLine = String.format("Rank:%d | Trade Entity:%s | Trade Call Type:%s | Amount:%s", rank, entry.getKey(), callType.toString(), TradeSettlementReportFormatter.formatAmount(entry.getValue()));
+                String reportLine = String.format("Rank:%d | Trade Entity:%s | Trade Call Type:%s | Amount:%s", rank, entry.getKey(), callType.toString(), TradeSettlementReportFormatter.getInstance().formatAmount(entry.getValue()));
                 sendToReportWriters(reportLine);
             }
         });

@@ -28,65 +28,78 @@ public class TradeOrderClientTerminal implements TradeOrderClient {
                         new TradeSettlementReportProducer(TradeSettlementReportApplicationContext.getInstance().getReportWriterlist()));
         TradeOrderClientTerminal tradeOrderClient = new TradeOrderClientTerminal();
         tradeOrderClient.setTradeReportApplication(tradeReportApplication);
-        while (tradeOrderClient.start()) ;
+        while (true) {
+            if (!tradeOrderClient.start()) break;
+        }
     }
 
     @Override
-    public boolean start() {
-        viewTradeOrdersInStore();
-        int menuChoice;
-        Scanner input = new Scanner(System.in);
-        do {
-            try {
-                System.out.println("******************TRADE ORDER ENTRY MENU******************");
-                System.out.println("\t1. Add Trade Order\n\t2. View Trade Orders\n\t3. Clear Trade Orders\n\t4. Generate trade order daily settlement report\n\t0. Exit");
-                System.out.println("**********************************************************");
-                System.out.println("Enter a choice: ");
+    public boolean start() throws TradeOrderClientException {
+
+        try (Scanner input = new Scanner(System.in)) {
+            do {
+                int menuChoice;
+                displayTradeOrderMenu();
                 menuChoice = input.nextInt();
-                if (menuChoice == 1) {
-                    System.out.println("Entity name [Example: Foo]:");
-                    String entity = input.next();
-                    System.out.println("Trade call type [Example: B or S]:");
-                    TradeCall tradeCall = TradeCall.valueOf(input.next().toUpperCase());
-                    System.out.println("Agreed fx rate [Example: 0.50]:");
-                    double agreedFx = input.nextDouble();
-                    System.out.println("Currency [Example: SGD]:");
-                    Currency currency = Currency.getInstance(input.next());
-                    System.out.println("Instruction date (ddMMyyyy) [Example: 23072018]:");
-                    LocalDate instructionDate = LocalDate.parse(input.next(), DateTimeFormatter.ofPattern("ddMMyyyy", Locale.ENGLISH));
-                    System.out.println("Settlement date (ddMMyyyy) [Example: 23072018]:");
-                    LocalDate settlementDate = LocalDate.parse(input.next(), DateTimeFormatter.ofPattern("ddMMyyyy", Locale.ENGLISH));
-                    if (settlementDate.isBefore(instructionDate)) {
-                        throw new IllegalArgumentException("settlement date can't be before instruction date");
-                    }
-                    System.out.println("Units [Example: 200]:");
-                    int qty = input.nextInt();
-                    System.out.println("Price [Example: 100.25]:");
-                    double price = input.nextDouble();
-                    TradeOrder tradeOrder = new TradeOrder(entity, tradeCall, agreedFx, currency, instructionDate, settlementDate, qty, price);
-                    TradeOrderManager.getInstance().addTradeOrder(tradeOrder);
-                    System.out.println("Trade order received:" + tradeOrder);
+                if (menuChoice == 0) {
+                    return false;
+                } else if (menuChoice == 1) {
+                    addTradeOrderAction(input);
                 } else if (menuChoice == 2) {
-                    viewTradeOrdersInStore();
+                    viewTradeOrdersInStoreAction();
                 } else if (menuChoice == 3) {
                     TradeOrderManager.getInstance().clear();
                 } else if (menuChoice == 4) {
-                    tradeReportApplication.generateReport();
-                } else if (menuChoice == 0) {
-                    return false;
-                } else if (menuChoice < 0 || menuChoice > 4) {
+                    if (TradeOrderManager.getInstance().getTradeOrders().isEmpty()) {
+                        System.out.println("No trade orders to process, please retry");
+                    } else {
+                        tradeReportApplication.generateReport();
+                    }
+                } else {
                     throw new IllegalArgumentException("un-recognized menu choice");
                 }
-            } catch (Throwable t) {
-                System.out.println("Input error:" + t.getMessage() + ", please retry.");
-                menuChoice = -1;
-            }
-        } while (menuChoice != 0);
-        input.close();
+            } while (true);
+        } catch (RuntimeException t) {
+            System.out.println("Input error:" + t.getMessage() + ", please retry.");
+        } catch (Exception e) {
+            throw new TradeOrderClientException(e.getMessage(), e.getCause());
+        }
         return true;
     }
 
-    private void viewTradeOrdersInStore() {
+    private void displayTradeOrderMenu() {
+        System.out.println("******************TRADE ORDER ENTRY MENU******************");
+        System.out.println("\t1. Add Trade Order\n\t2. View Trade Orders\n\t3. Clear Trade Orders\n\t4. Generate report\n\t0. Exit");
+        System.out.println("**********************************************************");
+        System.out.println("Enter a choice: ");
+    }
+
+    private void addTradeOrderAction(Scanner input) {
+        System.out.println("Entity name [Example: Foo]:");
+        String entity = input.next();
+        System.out.println("Trade call type [Example: B or S]:");
+        TradeCall tradeCall = TradeCall.valueOf(input.next().toUpperCase());
+        System.out.println("Agreed fx rate [Example: 0.50]:");
+        double agreedFx = input.nextDouble();
+        System.out.println("Currency [Example: SGD]:");
+        Currency currency = Currency.getInstance(input.next());
+        System.out.println("Instruction date (ddMMyyyy) [Example: 23072018]:");
+        LocalDate instructionDate = LocalDate.parse(input.next(), DateTimeFormatter.ofPattern("ddMMyyyy", Locale.ENGLISH));
+        System.out.println("Settlement date (ddMMyyyy) [Example: 23072018]:");
+        LocalDate settlementDate = LocalDate.parse(input.next(), DateTimeFormatter.ofPattern("ddMMyyyy", Locale.ENGLISH));
+        if (settlementDate.isBefore(instructionDate)) {
+            throw new IllegalArgumentException("settlement date can't be before instruction date");
+        }
+        System.out.println("Units [Example: 200]:");
+        int qty = input.nextInt();
+        System.out.println("Price [Example: 100.25]:");
+        double price = input.nextDouble();
+        TradeOrder tradeOrder = new TradeOrder(entity, tradeCall, agreedFx, currency, instructionDate, settlementDate, qty, price);
+        TradeOrderManager.getInstance().addTradeOrder(tradeOrder);
+        System.out.println("Trade order received:" + tradeOrder);
+    }
+
+    private void viewTradeOrdersInStoreAction() {
         System.out.println("//Trade orders in store//");
         List<TradeOrder> tradeOrderList = TradeOrderManager.getInstance().getTradeOrders();
         if (tradeOrderList.isEmpty()) {
