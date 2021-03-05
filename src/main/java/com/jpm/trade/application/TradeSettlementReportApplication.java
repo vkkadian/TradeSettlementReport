@@ -22,12 +22,12 @@ public class TradeSettlementReportApplication implements TradeReportApplication 
         this.tradeReportProducer = tradeReportProducer;
     }
 
-    public void generateReport() throws TradeReportApplicationException {
+    public void generateReport()  {
         try {
             Map<TradeCall, Map<String, Double>> tradeReportMap = tradeReportProcessor.process(TradeOrderManager.getInstance().getTradeOrders());
             tradeReportProducer.produce(tradeReportMap);
         } catch (Exception e) {
-            throw new TradeReportApplicationException(e.getMessage(), e.getCause());
+            throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 }

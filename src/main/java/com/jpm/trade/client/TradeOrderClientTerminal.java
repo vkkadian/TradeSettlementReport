@@ -34,7 +34,7 @@ public class TradeOrderClientTerminal implements TradeOrderClient {
     }
 
     @Override
-    public boolean start() throws TradeOrderClientException {
+    public boolean start() {
 
         try (Scanner input = new Scanner(System.in)) {
             do {
@@ -62,7 +62,7 @@ public class TradeOrderClientTerminal implements TradeOrderClient {
         } catch (RuntimeException t) {
             System.out.println("Input error:" + t.getMessage() + ", please retry.");
         } catch (Exception e) {
-            throw new TradeOrderClientException(e.getMessage(), e.getCause());
+            throw new RuntimeException(e.getMessage(), e.getCause());
         }
         return true;
     }
